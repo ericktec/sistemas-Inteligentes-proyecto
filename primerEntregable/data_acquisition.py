@@ -4,6 +4,7 @@
 import time
 import socket
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Data configuration
 n_channels = 5
@@ -40,6 +41,51 @@ while True:
             print ("Cuenta: ", samp_count)
             print ("Última lectura: ", [row[samp_count-1] for row in emg_data])
             print("")
+            ventana_actual = emg_data
+            print("EMG_DATA ", ventana_actual)
+            chann1 = ventana_actual[:, 0]
+            chann2 = ventana_actual[:, 2]
+            print("Channel 1: ", chann1)
+            print("Channel 2: ", chann2)
+
+            ini_samp = start_time
+            end_samp = elapsed_time
+            
+
+            x = chann1[ini_samp: end_samp]
+            t = [ini_samp, end_samp]
+            y = chann2[ini_samp: end_samp]
+            
+            plt.plot(t, x, label='Canal 1')
+            plt.plot(t, y, color='red', label='Canal 2')
+            plt.xlabel('Tiempo (s)')
+            plt.ylabel('micro V')
+            plt.legend()
+            plt.show()
+
+            
+
+            # power, freq = plt.psd(x, NFFT=win_size, Fs=samp_rate)
+            # power2, freq2 = plt.psd(y, NFFT=win_size, Fs=samp_rate)
+            # plt.clf()
+
+            # start_freq = next(x for x, val in enumerate(freq) if val >= 4.0)
+            # end_freq = next(x for x, val in enumerate(freq) if val >= 60.0)
+            
+            # start_freq2 = next(y for y, val in enumerate(freq) if val >= 4.0)
+            # end_freq2 = next(y for y, val in enumerate(freq) if val >= 60.0)
+            
+            # start_index = np.where(freq >= 4.0)[0][0]
+            # end_index = np.where(freq >= 60.0)[0][0]
+
+
+            # plt.plot(freq[start_index:end_index], power[start_index:end_index], label='Canal 1')
+            # plt.plot(freq[start_index:end_index], power2[start_index:end_index], color='red', label='Canal 2')
+            # plt.xlabel('Hz')
+            # plt.ylabel('Power')
+            # plt.legend()
+            # plt.show()
+
             
     except socket.timeout:
         pass  

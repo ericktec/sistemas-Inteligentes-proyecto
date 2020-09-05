@@ -35,7 +35,7 @@ while True:
     start_index = end_index
     end_index = int(samp_rate*elapsed_time)
 
-    index = start_index % samps;
+    index = start_index % samps
     ns = end_index - start_index
 
     # Send data for the calculated range
