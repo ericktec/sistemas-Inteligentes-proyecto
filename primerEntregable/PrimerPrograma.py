@@ -179,18 +179,16 @@ print(channPowAverage1)
 print(channPowAverage2)
 
 
-# for mark in channPowAverage1:
-#     for hz in range(4, 61):
-#         fig, axs = plt.subplots(2)
-#         axs[0].plot(channPowAverage2[mark][hz])
-#         axs[1].plot()
-#          = sum(channPow2[mark][hz])/len(channPow2[mark][hz])
+fig, axs = plt.subplots(3)
+acumulador = 0
 
-    
-# print(channPowAverage1)
-# plt.plot(channPowAverage1.keys(), channPowAverage1.values())
-# plt.xlabel('Hz')
-# plt.ylabel('Power')
-# plt.legend()
-# plt.show()
-# print(channPowAverage1.keys())
+for mark in channPowAverage1:
+    axs[acumulador].plot(channPowAverage1[mark].keys(), channPowAverage1[mark].values())
+    acumulador = acumulador+1
+
+plt.xlabel('Hz')
+plt.ylabel('Power')
+plt.legend()
+plt.show()
+
+
