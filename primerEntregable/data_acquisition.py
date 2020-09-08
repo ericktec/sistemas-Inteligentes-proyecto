@@ -11,6 +11,7 @@ n_channels = 5
 samp_rate = 256
 emg_data = [[] for i in range(n_channels)]
 samp_count = 0
+time_samp = []
 
 # Socket configuration
 UDP_IP = '127.0.0.1'
@@ -29,7 +30,7 @@ while True:
         values = np.frombuffer(data)       
         ns = int(len(values)/n_channels)
         samp_count+=ns        
-
+        time_samp.append(samp_count/samp_rate)
         for i in range(ns):
             for j in range(n_channels):
                 emg_data[j].append(values[n_channels*i + j])
@@ -45,24 +46,25 @@ while True:
             print("EMG_DATA ", ventana_actual)
             chann1 = ventana_actual[:, 0]
             chann2 = ventana_actual[:, 2]
-            print("Channel 1: ", chann1)
-            print("Channel 2: ", chann2)
 
-            ini_samp = start_time
-            end_samp = elapsed_time
+            # print("Channel 1: ", chann1)
+            # print("Channel 2: ", chann2)
+
+            ini_samp = samp_count-samp_rate
+            end_samp = samp_count
             
 
             x = chann1[ini_samp: end_samp]
-            t = [ini_samp, end_samp]
+            t = time_samp[ini_samp: end_samp]
             y = chann2[ini_samp: end_samp]
             
-            plt.plot(t, x, label='Canal 1')
-            plt.plot(t, y, color='red', label='Canal 2')
+            fig, axs = plt.subplots(2)
+            axs[0].plot(t, x, label='Canal 1')
+            axs[1].plot(t, y, color='red', label='Canal 2')
             plt.xlabel('Tiempo (s)')
             plt.ylabel('micro V')
             plt.legend()
             plt.show()
-
             
 
             # power, freq = plt.psd(x, NFFT=win_size, Fs=samp_rate)
