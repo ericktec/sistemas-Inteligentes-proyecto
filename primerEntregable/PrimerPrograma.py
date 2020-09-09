@@ -162,7 +162,7 @@ for currentMark in training_samples:
             plt.xlabel('Hz')
             plt.ylabel('Power')
             plt.legend()
-            plt.clf()
+            plt.show()
             ini_samp = end_samp
 
 
