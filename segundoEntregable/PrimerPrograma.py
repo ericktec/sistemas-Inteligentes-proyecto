@@ -11,12 +11,19 @@ from keras.layers import Dense
 from keras.utils import np_utils
 
 
+def getAccuracy(cm, len_y):
+    accp = 0
+    for i in range(0, cm.shape[0]):
+        accp += cm[i, i]
+    return accp/len_y
+
+
 # Read data file
-data = np.loadtxt("Izquierda, derecha, cerrado.txt")
+data = np.loadtxt("Abierto - Cerrado - Normal 1.txt")
 samp_rate = 256
 samps = data.shape[0]
 n_channels = data.shape[1]
-win_size = 256
+win_size = 256*2
 
 channPow1 = {
 
@@ -65,7 +72,7 @@ for i in range(0, samps):
             training_samples[int(condition_id)].append([iniSamp, i])
 
 # print('Rango de muestras con datos de entrenamiento:', training_samples)
-print(channPowAverage1)
+
 
 # Plot data
 for currentMark in training_samples:
@@ -88,6 +95,7 @@ for currentMark in training_samples:
     power, freq = plt.psd(x, NFFT=win_size, Fs=samp_rate)
     power2, freq2 = plt.psd(y, NFFT=win_size, Fs=samp_rate)
     plt.clf()
+
 
     start_freq = next(x for x, val in enumerate(freq) if val >= 4.0)
     end_freq = next(x for x, val in enumerate(freq) if val >= 60.0)
@@ -146,7 +154,7 @@ for currentMark in training_samples:
 
             plt.clf()
 
-            # print("Power ",power, " freq ",freq)
+            print("Power ",power, " freq ",freq)
 
             # start_freq = next(x for x, val in enumerate(freq) if val >= 4.0)
             # end_freq = next(x for x, val in enumerate(freq) if val >= 60.0)
@@ -155,9 +163,13 @@ for currentMark in training_samples:
             start_index = np.where(freq >= 4.0)[0][0]
             end_index = np.where(freq >= 60.0)[0][0]
 
+            initialHz = 4
+            # 128: 2 - 30
+            # 256: 4 - 60
+            # 512: 8 - 120
             for hz in range(start_index, end_index+1):
-                channPow1[currentMark][hz].append(power[hz])
-                channPow2[currentMark][hz].append(power2[hz])
+                channPow1[currentMark][int(freq[hz])].append(power[hz])
+                channPow2[currentMark][int(freq[hz])].append(power2[hz])
 
             # plt.plot(freq[start_index:end_index], power[start_index:end_index], label='Canal 1')
             # plt.plot(freq[start_index:end_index], power2[start_index:end_index], color='red', label='Canal 2')
@@ -169,12 +181,13 @@ for currentMark in training_samples:
             end_samp = ini_samp + win_size
 
 
+
 for mark in training_samples:
     for hz in range(4, 61):
-        channPowAverage1[mark][hz] = sum(
-            channPow1[mark][hz])/len(channPow1[mark][hz])
-        channPowAverage2[mark][hz] = sum(
-            channPow2[mark][hz])/len(channPow2[mark][hz])
+        if(len(channPow1[mark][hz]) > 0):
+            channPowAverage1[mark][hz] = sum(channPow1[mark][hz])/len(channPow1[mark][hz])
+        if(len(channPow2[mark][hz]) > 0):
+            channPowAverage2[mark][hz] = sum(channPow2[mark][hz])/len(channPow2[mark][hz])
 
 
 for mark in channPowAverage1:
@@ -204,18 +217,22 @@ y = []
 
 x = []
 
+
 for mark in training_samples:
     for i in range(len(channPow1[mark][4])):
         y.append(mark)
         temp = []
         for hz in range(4, 61):
-            temp.append(channPow1[mark][hz][i])
-        x.append(temp)
+            if(len(channPow1[mark][hz]) > 0):
+                temp.append(channPow1[mark][hz][i])
+            if(len(channPow2[mark][hz]) > 0): 
+                temp.append(channPow2[mark][hz][i])
+        if(len(temp)>0):
+            x.append(temp)
 
 
 y = np.array(y)
 x = np.array(x)
-
 
 bestAverage = 0
 bestPrediction = ""
@@ -242,8 +259,8 @@ for train_index, test_index in kf.split(x):
     cm = confusion_matrix(y_test, y_pred)
     print(cm)
 
-    print("acc = ", (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test))
-    accp += (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test)
+    print("acc = ", getAccuracy(cm, len(y_test)))
+    accp += getAccuracy(cm, len(y_test))
 
 
 bestAverage = accp/5
@@ -271,8 +288,8 @@ for train_index, test_index in kf.split(x):
     cm = confusion_matrix(y_test, y_pred)
     print(cm)
 
-    print("acc = ", (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test))
-    accp += (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test)
+    print("acc = ", getAccuracy(cm, len(y_test)))
+    accp += getAccuracy(cm, len(y_test))
 
 
 if(accp/5 > bestAverage):
@@ -301,8 +318,8 @@ for train_index, test_index in kf.split(x):
     cm = confusion_matrix(y_test, y_pred)
     print(cm)
 
-    print("acc = ", (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test))
-    accp += (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test)
+    print("acc = ", getAccuracy(cm, len(y_test)))
+    accp += getAccuracy(cm, len(y_test))
 
 
 if(accp/5 > bestAverage):
@@ -329,8 +346,8 @@ for train_index, test_index in kf.split(x):
     cm = confusion_matrix(y_test, y_pred)
     print(cm)
 
-    print("acc = ", (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test))
-    accp += (cm[0, 0]+cm[1, 1]+cm[2, 2])/len(y_test)
+    print("acc = ", getAccuracy(cm, len(y_test)))
+    accp += getAccuracy(cm, len(y_test))
 
 
 if(accp/5 > bestAverage):
@@ -340,84 +357,123 @@ if(accp/5 > bestAverage):
 print("Average accuracy is ", accp/5)
 
 ################################################################
-##  RED NEURONAL ##
+##  RED NEURONAL MULTICAPA ##
 
+print("==============================RED NEURONAL MULTICAPA")
 
+n_features = x.shape[1]
 
-n_features = 56
-
-
-
-
-print("x ",x)
-
-# Define MLP model
-clf = Sequential()
-clf.add(Dense(8, input_dim=n_features, activation='relu'))
-clf.add(Dense(8, activation='relu'))
-clf.add(Dense(3, activation='softmax')) # for 2-class problems, use clf.add(Dense(1, activation='sigmoid'))
-
-# Compile model
-clf.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-output_y = np_utils.to_categorical(y) 
-
-# Fit model
-clf.fit(x, output_y, epochs=150, batch_size=5)
-
-# Predict class of a new observation
-prob = clf.predict( [[1.,2.,3.,4.]] )
-print("Probablities", prob)
-print("Predicted class", np.argmax(prob, axis=-1))
+accp = 0
 
 # Evaluate model
-kf = KFold(n_splits=5, shuffle = True)
+kf = KFold(n_splits=5, shuffle=True)
 
-acc = 0
-recall = np.array([0., 0., 0.])
+
+y = y-101
+print("y ", y.shape)
+print("x ", x.shape)
 for train_index, test_index in kf.split(x):
 
     # Training phase
     x_train = x[train_index, :]
     y_train = y[train_index]
-    y_train = np_utils.to_categorical(y_train)  # Only required in multiclass problems
+    # Only required in multiclass problems
+    
 
     clf = Sequential()
     clf.add(Dense(8, input_dim=n_features, activation='relu'))
-    clf.add(Dense(8, activation='relu'))
-    clf.add(Dense(3, activation='softmax'))
-    clf.compile(loss='categorical_crossentropy', optimizer='adam') # For 2-class problems, use clf.compile(loss='binary_crossentropy', optimizer='adam')
-    clf.fit(x_train, y_train, epochs=150, batch_size=5, verbose=0)    
+    clf.add(Dense(8, activation='relu'))  # Una sola capa
+    
+
+    if(len(training_samples) < 3):
+        clf.add(Dense(1, activation='sigmoid'))
+        clf.compile(loss='binary_crossentropy', optimizer='adam')
+    else:
+        y_train = np_utils.to_categorical(y_train)
+        clf.add(Dense(3, activation='softmax'))
+        clf.compile(loss='categorical_crossentropy',
+                    optimizer='adam') 
+
+    clf.fit(x_train, y_train, epochs=150, batch_size=5, verbose=0)
 
     # Test phase
     x_test = x[test_index, :]
     y_test = y[test_index]
-    y_pred = np.argmax(clf.predict(x_test), axis=-1)  # For 2-class problems, use (clf.predict(x_test) > 0.5).astype("int32")
+
+    if(len(training_samples) < 3):
+        y_pred = (clf.predict(x_test) > 0.5).astype("int32")
+    else:
+        y_pred = np.argmax(clf.predict(x_test), axis=-1)
+    
+    cm = confusion_matrix(y_test, y_pred)
+
+    accp += getAccuracy(cm, len(y_test))
+
+
+print("Red neuronal multicapa")
+
+accp = accp/5
+
+
+print("Average accuracy is ", accp)
+
+if(accp > bestAverage):
+    bestAverage = accp
+    bestPrediction = "Red neuronal multicapa"
+
+################################################################
+
+##  RED NEURONAL UNICAPA ##
+print("==============================RED NEURONAL UNICAPA")
+
+n_features = x.shape[1]
+
+accp = 0
+
+# Evaluate model
+kf = KFold(n_splits=5, shuffle=True)
+
+for train_index, test_index in kf.split(x):
+
+    # Training phase
+    x_train = x[train_index, :]
+    y_train = y[train_index]
+    
+
+    clf = Sequential()
+    clf.add(Dense(8, input_dim=n_features, activation='relu'))
+    clf.add(Dense(3, activation='softmax'))
+    if(len(training_samples) < 3):
+        clf.add(Dense(1, activation='sigmoid'))
+        clf.compile(loss='binary_crossentropy', optimizer='adam')
+    else:
+        y_train = np_utils.to_categorical(y_train)
+        clf.add(Dense(3, activation='softmax'))
+        clf.compile(loss='categorical_crossentropy',
+                    optimizer='adam')
+    clf.fit(x_train, y_train, epochs=150, batch_size=5, verbose=0)
+
+    # Test phase
+    x_test = x[test_index, :]
+    y_test = y[test_index]
+    if(len(training_samples) < 3):
+            y_pred = (clf.predict(x_test) > 0.5).astype("int32")
+    else:
+        y_pred = np.argmax(clf.predict(x_test), axis=-1)
 
     cm = confusion_matrix(y_test, y_pred)
 
-    acc += (cm[0,0]+cm[1,1]+cm[2,2])/len(y_test)    
+    accp += getAccuracy(cm, len(y_test))
 
-    recall[0] += cm[0,0]/(cm[0,0] + cm[0,1] + cm[0,2])
-    recall[1] += cm[1,1]/(cm[1,0] + cm[1,1] + cm[1,2])
-    recall[2] += cm[2,2]/(cm[2,0] + cm[2,1] + cm[2,2])
 
-print("Red neuronal")
+accp = accp/5
 
-accp = acc/5
-print('ACC = ', accp)
-
-recall = recall/5
-print('RECALL = ', recall)
-
-#################################################################
+print("Average accuracy is ", accp)
+################################################################
 
 if(accp > bestAverage):
     bestAverage = accp
     bestPrediction = "Red neuronal"
-
-
-print("Average accuracy is ", accp)
 
 
 print("The best classifier was ", bestPrediction)
