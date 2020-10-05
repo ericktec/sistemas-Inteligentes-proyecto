@@ -23,7 +23,7 @@ data = np.loadtxt("Abierto - Cerrado - Normal 1.txt")
 samp_rate = 256
 samps = data.shape[0]
 n_channels = data.shape[1]
-win_size = 256*2
+win_size = 256
 
 channPow1 = {
 
@@ -54,6 +54,9 @@ chann2 = data[:, 3]
 mark = data[:, 6]
 
 
+
+frequenciesLabels = []
+
 training_samples = {}
 for i in range(0, samps):
     if mark[i] > 0:
@@ -65,10 +68,10 @@ for i in range(0, samps):
         elif mark[i] == 200:
             if not condition_id in training_samples.keys():
                 training_samples[condition_id] = []
-                channPow1[condition_id] = {}
-                channPow2[condition_id] = {}
-                channPowAverage1[condition_id] = {}
-                channPowAverage2[condition_id] = {}
+                channPow1[condition_id] = []
+                channPow2[condition_id] = []
+                channPowAverage1[condition_id] = []
+                channPowAverage2[condition_id] = []
             training_samples[int(condition_id)].append([iniSamp, i])
 
 # print('Rango de muestras con datos de entrenamiento:', training_samples)
@@ -102,7 +105,7 @@ for currentMark in training_samples:
     # print(start_freq, end_freq)
     start_freq2 = next(y for y, val in enumerate(freq) if val >= 4.0)
     end_freq2 = next(y for y, val in enumerate(freq) if val >= 60.0)
-    # print(start_freq2, end_freq2)
+    print(start_freq2, end_freq2)
 
     # print("La frecuencia es", freq)
     # print("El poder es", power)
@@ -118,13 +121,9 @@ for currentMark in training_samples:
     plt.legend()
     plt.clf()
 
+frequenciesLabels = freq[start_index:end_index] 
 
-for mark in training_samples:
-    for hz in range(4, 61):
-        channPow1[mark][hz] = []
-        channPow2[mark][hz] = []
-        channPowAverage1[mark][hz] = 0
-        channPowAverage2[mark][hz] = 0
+
 
 
 for currentMark in training_samples:
@@ -154,7 +153,7 @@ for currentMark in training_samples:
 
             plt.clf()
 
-            print("Power ",power, " freq ",freq)
+            # print("Power ",power, " freq ",freq)
 
             # start_freq = next(x for x, val in enumerate(freq) if val >= 4.0)
             # end_freq = next(x for x, val in enumerate(freq) if val >= 60.0)
@@ -163,13 +162,17 @@ for currentMark in training_samples:
             start_index = np.where(freq >= 4.0)[0][0]
             end_index = np.where(freq >= 60.0)[0][0]
 
-            initialHz = 4
             # 128: 2 - 30
             # 256: 4 - 60
             # 512: 8 - 120
+            temp1 = []
+            temp2 = []
             for hz in range(start_index, end_index+1):
-                channPow1[currentMark][int(freq[hz])].append(power[hz])
-                channPow2[currentMark][int(freq[hz])].append(power2[hz])
+                temp1.append(power[hz])
+                temp2.append(power2[hz])
+
+            channPow1[currentMark].append(temp1)
+            channPow2[currentMark].append(temp2)
 
             # plt.plot(freq[start_index:end_index], power[start_index:end_index], label='Canal 1')
             # plt.plot(freq[start_index:end_index], power2[start_index:end_index], color='red', label='Canal 2')
@@ -181,36 +184,43 @@ for currentMark in training_samples:
             end_samp = ini_samp + win_size
 
 
-
-for mark in training_samples:
-    for hz in range(4, 61):
-        if(len(channPow1[mark][hz]) > 0):
-            channPowAverage1[mark][hz] = sum(channPow1[mark][hz])/len(channPow1[mark][hz])
-        if(len(channPow2[mark][hz]) > 0):
-            channPowAverage2[mark][hz] = sum(channPow2[mark][hz])/len(channPow2[mark][hz])
+print("chanpow1", channPow1)
+print("chanpow2", channPow2)
 
 
-for mark in channPowAverage1:
-    plt.plot(channPowAverage1[mark].keys(),
-             channPowAverage1[mark].values(), label=mark)
+# for mark in training_samples:
+#     averageTemp = np.array(channPow1[mark])
+#     for i in range(0, averageTemp.size):
+#         channPowAverage1[mark].append(sum(averageTemp[:, i])/len(averageTemp[:, i]))
 
 
-plt.title("Canal 1")
-plt.xlabel('Hz')
-plt.ylabel('Power')
-plt.legend()
-plt.clf()
+# for mark in training_samples:
+#     averageTemp = np.array(channPow2[mark])
+#     for i in range(0, averageTemp.size):
+#         channPowAverage2[mark].append(sum(averageTemp[:, i])/len(averageTemp[:, i]))
 
 
-for mark in channPowAverage2:
-    plt.plot(channPowAverage2[mark].keys(),
-             channPowAverage2[mark].values(), label=mark)
+# for mark in channPowAverage1:
+#     plt.plot(frequenciesLabels,
+#              channPowAverage1[mark], label=mark)
 
-plt.title("Canal 2")
-plt.xlabel('Hz')
-plt.ylabel('Power')
-plt.legend()
-plt.clf()
+
+# plt.title("Canal 1")
+# plt.xlabel('Hz')
+# plt.ylabel('Power')
+# plt.legend()
+# plt.clf()
+
+
+# for mark in channPowAverage2:
+#     plt.plot(frequenciesLabels,
+#              channPowAverage2[mark], label=mark)
+
+# plt.title("Canal 2")
+# plt.xlabel('Hz')
+# plt.ylabel('Power')
+# plt.legend()
+# plt.clf()
 
 
 y = []
@@ -219,20 +229,16 @@ x = []
 
 
 for mark in training_samples:
-    for i in range(len(channPow1[mark][4])):
+    for i in range(len(channPow1[mark])):
+        x.append(channPow1[mark][i]+channPow2[mark][i])
         y.append(mark)
-        temp = []
-        for hz in range(4, 61):
-            if(len(channPow1[mark][hz]) > 0):
-                temp.append(channPow1[mark][hz][i])
-            if(len(channPow2[mark][hz]) > 0): 
-                temp.append(channPow2[mark][hz][i])
-        if(len(temp)>0):
-            x.append(temp)
 
 
 y = np.array(y)
 x = np.array(x)
+
+print("x",x)
+print("y", y)
 
 bestAverage = 0
 bestPrediction = ""
