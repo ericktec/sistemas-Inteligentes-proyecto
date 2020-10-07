@@ -9,7 +9,7 @@ import struct
 # EMG data
 samp_rate = 256
 
-data = np.loadtxt("Izquierda, derecha, cerrado.txt") 
+data = np.loadtxt("Abierto - Cerrado - Normal 2.txt") 
 mark = data[:, data.shape[1]-1]
 samps = data.shape[0]
 
@@ -58,4 +58,4 @@ while True:
         # Send data
         sock.sendto(bin_data, (UDP_IP, UDP_PORT))
 
-    print("Muestras enviadas:", ns)
+    #print("Muestras enviadas:", ns)

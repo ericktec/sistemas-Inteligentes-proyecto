@@ -261,6 +261,7 @@ for train_index, test_index in kf.split(x):
     x_test = x[test_index, :]
     y_test = y[test_index]
 
+    print("x_test", x_test)
     y_pred = clf.predict(x_test)
     cm = confusion_matrix(y_test, y_pred)
     print(cm)
