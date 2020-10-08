@@ -29,13 +29,13 @@ start_time = time.time()
 while True:
 
     # Calculate elapsed time and current data index
-    time.sleep(0.1)
+    time.sleep(0.05)
     elapsed_time = time.time() - start_time
 
     start_index = end_index
     end_index = int(samp_rate*elapsed_time)
 
-    index = start_index % samps
+    index = start_index % samps;
     ns = end_index - start_index
 
     # Send data for the calculated range
@@ -45,12 +45,13 @@ while True:
         out_data = []
         for i in range(ns):
             for j in range(n_channels):
-                out_data.append(data[index][j])                
-                index+=1
-                index %= samps
+                out_data.append(data[index][j])            
 
             if (mark[index] != 0):
                 print('--------------- Marca:', int(mark[index]), '---------------')
+
+            index+=1
+            index %= samps
 
         pack_string = '<' + str(n_channels*ns) + 'd'
         bin_data = struct.pack(pack_string, *out_data)
