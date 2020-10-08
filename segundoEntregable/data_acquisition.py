@@ -302,16 +302,9 @@ while True:
                 chann1 = emg_data[0]
                 chann2 = emg_data[2]
 
-                print("Channel 1: ", len(chann1))
-                print("Channel 2: ", len(chann2))
-          
-                
-                # print("El array t es", t)
-                # print("Tamaño del array ", len(t))
                 x = chann1[-win_size:]
                 y = chann2[-win_size:]
-                #print("X ", x)
-                #print("Y", y)
+
                 contador = 0
                 
                 
@@ -335,9 +328,7 @@ while True:
                     temp1.append(power[hz])
                     temp2.append(power2[hz])
                 
-                #print("temp1", temp1)
-                #print("temp2", temp2)
-                # print("temp1+temp2", [temp1+temp2])
+
                 
 
                 print("prediction", clf.predict([temp1+temp2]))
