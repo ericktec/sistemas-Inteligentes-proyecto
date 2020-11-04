@@ -73,19 +73,27 @@ class TicTacToeGameController(TwoPlayersGame):
         p2H = bcolors.OKGREEN + '-' +bcolors.ENDC
         p2V = bcolors.OKGREEN + '|' +bcolors.ENDC
 
+        takenColors = [' ', bcolors.OKBLUE+'1'+bcolors.ENDC, bcolors.OKGREEN+"2"+bcolors.ENDC]
+
         horizontal = [' ',p1H, p2H]
         vertical = [' ', p1V, p2V]
 
-        points = [' ', '1', '2']
 
+
+        ##Clear command for windows
+        #os.system('cls')
+
+        ##clear command for linux & mac:
         os.system('clear')
-        print('o ',horizontal[self.board[0]], ' o ',horizontal[self.board[1]], ' o ',horizontal[self.board[2]], ' o ')
-        print(vertical[self.board[3]], points[self.pointsTaken[0]],' ',vertical[self.board[4]], points[self.pointsTaken[1]],' ',vertical[self.board[5]], points[self.pointsTaken[2]],' ', vertical[self.board[6]])
-        print('o ',horizontal[self.board[7]], ' o ',horizontal[self.board[8]], ' o ',horizontal[self.board[9]], ' o ')
-        print(vertical[self.board[10]], points[self.pointsTaken[3]],' ',vertical[self.board[11]], points[self.pointsTaken[4]],' ',vertical[self.board[12]], points[self.pointsTaken[5]],' ', vertical[self.board[13]])
-        print('o ',horizontal[self.board[14]], ' o ',horizontal[self.board[15]], ' o ',horizontal[self.board[16]], ' o ')
-        print(vertical[self.board[17]], points[self.pointsTaken[6]],' ',vertical[self.board[18]], points[self.pointsTaken[7]],' ',vertical[self.board[19]], points[self.pointsTaken[8]],' ', vertical[self.board[20]])
-        print('o ',horizontal[self.board[21]], ' o ',horizontal[self.board[22]], ' o ',horizontal[self.board[23]], ' o ')
+
+        
+        print(bcolors.BOLD+'o '+bcolors.ENDC,horizontal[self.board[0]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[1]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[2]], bcolors.BOLD+' o '+bcolors.ENDC)
+        print(vertical[self.board[3]], takenColors[self.pointsTaken[0]],' ',vertical[self.board[4]], takenColors[self.pointsTaken[1]],' ',vertical[self.board[5]], takenColors[self.pointsTaken[2]],' ', vertical[self.board[6]])
+        print(bcolors.BOLD+'o '+bcolors.ENDC,horizontal[self.board[7]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[8]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[9]], bcolors.BOLD+' o '+bcolors.ENDC)
+        print(vertical[self.board[10]], takenColors[self.pointsTaken[3]],' ',vertical[self.board[11]], takenColors[self.pointsTaken[4]],' ',vertical[self.board[12]], takenColors[self.pointsTaken[5]],' ', vertical[self.board[13]])
+        print(bcolors.BOLD+'o '+bcolors.ENDC,horizontal[self.board[14]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[15]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[16]], bcolors.BOLD+' o '+bcolors.ENDC)
+        print(vertical[self.board[17]], takenColors[self.pointsTaken[6]],' ',vertical[self.board[18]], takenColors[self.pointsTaken[7]],' ',vertical[self.board[19]], takenColors[self.pointsTaken[8]],' ', vertical[self.board[20]])
+        print(bcolors.BOLD+'o '+bcolors.ENDC,horizontal[self.board[21]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[22]], bcolors.BOLD+' o '+bcolors.ENDC,horizontal[self.board[23]], bcolors.BOLD+' o '+bcolors.ENDC)
         print()
         [self.p1, self.p2] = self.printScore()
         
@@ -168,7 +176,7 @@ class TicTacToeGameController(TwoPlayersGame):
                 p1+=1
             elif n==2:
                 p2+=1
-        print('SCORE: P1: ', bcolors.OKBLUE + '',p1,'' +bcolors.ENDC,'  -  P2: ', bcolors.OKGREEN + '',p2,''+bcolors.ENDC)
+        print(bcolors.WARNING+'SCORE: '+bcolors.ENDC, bcolors.OKBLUE + 'P1: '+bcolors.ENDC, bcolors.WARNING+'',p1,'  - '+bcolors.ENDC, bcolors.OKGREEN+' P2: '+bcolors.ENDC,bcolors.WARNING+'',p2,'',bcolors.ENDC)
         
         return p1, p2
 
