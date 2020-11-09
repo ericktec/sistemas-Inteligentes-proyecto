@@ -192,7 +192,7 @@ class TicTacToeGameController(TwoPlayersGame):
 def main():
 
     # Search algorithm of the AI player
-    algorithm = Negamax(7)
+    algorithm = Negamax(5)
 
     # Start the game
     TicTacToeGameController([AI_Player(algorithm), AI_Player(algorithm)]).play()
