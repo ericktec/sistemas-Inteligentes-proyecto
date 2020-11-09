@@ -20,13 +20,28 @@ class Human_Player:
         self.clasificador = clasificador
 
     def ask_move(self, game):
+
+        # 101 = Flexionando a la izquierda, 102 = Flexionando a la derecha, 103  = Mano cerrada
+        initial_option = 0
         possible_moves = game.possible_moves()
+        gettingInput = True
         # The str version of every move for comparison with the user input:
         possible_moves_str = list(map(str, game.possible_moves()))
         move = "NO_MOVE_DECIDED_YET"
         while True:
-            print("La señal obtenida es : ", self.clasificador.getInput())
-            move = input("\nPlayer %s what do you play ? "%(game.nplayer))
+            while gettingInput:
+                print("La señal obtenida es : ", self.clasificador.getInput()[0])
+                option = int(self.clasificador.getInput()[0].item())
+                print("Current move is ", initial_option)
+                if(option == 101 and initial_option>0):
+                    initial_option-=1
+                elif(option == 102 and initial_option<24):
+                    initial_option+=1
+                elif(option == 103 and initial_option<24):
+                    move = str(initial_option)
+                    gettingInput = False
+            
+
             if move == 'show moves':
                 print ("Possible moves:\n"+ "\n".join(
                        ["#%d: %s"%(i+1,m) for i,m in enumerate(possible_moves)])
@@ -45,6 +60,8 @@ class Human_Player:
                 move = possible_moves[possible_moves_str.index(str(move))]
                 print("move is ",type(move))
                 return move
+            else:
+                gettingInput = True
 
 class AI_Player:
     """

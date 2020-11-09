@@ -199,7 +199,6 @@ def main():
 
 
     clasificador = Clasificador()
-        
 
     # Search algorithm of the AI player
     algorithm = Negamax(5)
